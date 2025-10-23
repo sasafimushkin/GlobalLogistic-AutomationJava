@@ -1,3 +1,4 @@
+
 package api;
 
 import io.restassured.response.Response;
@@ -5,6 +6,7 @@ import org.junit.jupiter.api.*;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BookingAPITest {
     static String token;
     static int bookingId;
@@ -45,9 +47,32 @@ public class BookingAPITest {
 
     @Test
     @Order(3)
+    public void getBookingDetailsAfterUpdate() {
+        given()
+                .get("/booking/" + bookingId)
+                .then()
+                .statusCode(200)
+                .body("firstname", equalTo("John"))
+                .body("totalprice", equalTo(700));
+    }
+
+    @Test
+    @Order(4)
+    public void checkBookingInAllBookings() {
+        given()
+                .get("/booking")
+                .then()
+                .statusCode(200)
+                .body("bookingid", hasItem(bookingId));
+    }
+
+    @Test
+    @Order(5)
     public void deleteBooking() {
-        given().cookie("token", token)
+        given()
+                .cookie("token", token)
                 .delete("/booking/" + bookingId)
-                .then().statusCode(201);
+                .then()
+                .statusCode(201);
     }
 }
